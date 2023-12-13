@@ -1,6 +1,9 @@
 import {defer} from '@shopify/remix-oxygen';
 import {useLoaderData} from '@remix-run/react';
 import {Image} from '@shopify/hydrogen';
+import ProductCard from 'material ui components/ProductCard';
+import React from 'react';
+import {Grid} from '@mui/material';
 
 export async function loader({context}) {
   const {storefront} = context;
@@ -23,44 +26,53 @@ export function AllProducts() {
 
   console.log(JSON.stringify(nodes));
   return (
-    <>
+    <Grid container spacing={10} sx={{padding: '50px'}}>
       {nodes &&
         nodes.map((node) => {
           return (
-            <div
-              className="flex flex-col gap-12  p-6 border border-solid border-lime-400 items-center justify-center"
-              key={node.id}
-            >
-              <h2>{node.title}</h2>
+            <Grid item key={node.id} xs={12} sm={6} md={4} lg={3}>
               {node.images.nodes[0] ? (
-                <Image src={node.images.nodes[0].url} sizes="100vw" />
+                // <Image src={node.images.nodes[0].url} sizes="100vw" />
+                <ProductCard
+                  src={node.images.nodes[0].url}
+                  title={node.title}
+                  className={
+                    'transition-transform duration-300 ease-in-out transform hover:scale-110 cursor-pointer'
+                  }
+                  price={node.priceRange.maxVariantPrice.amount}
+                  code={node.priceRange.maxVariantPrice.currencyCode}
+                />
               ) : null}
-              <h2>Description :</h2>
-              <p>{node.description}</p>
-            </div>
+            </Grid>
           );
         })}
-    </>
+    </Grid>
   );
 }
 
 export const All_Products = `
 query AllProducts{
-    products(first:3){
-     nodes{
-      id
-      description
-      title
-      images(first:1){
-        nodes{
-          altText
-          height
-          url
-          width
-        }
+  products(first:3){
+   nodes{
+    id
+    description
+    title
+    priceRange{
+      maxVariantPrice{
+        amount
+        currencyCode
       }
     }
+    images(first:1){
+      nodes{
+        altText
+        height
+        url
+        width
+      }
     }
   }
+  }
+}
 
 `;
